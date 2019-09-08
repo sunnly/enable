@@ -1,0 +1,213 @@
+<!DOCTYPE>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>vue</title>
+    </head>
+<style>
+    *, *:before, *:after {
+        box-sizing: border-box;
+    }
+
+    body, html {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    body, ul {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        color: #4d4d4d;
+        font: 14px/1.4em 'Helvetica Neue', Helvetica, 'Microsoft Yahei', Arial, sans-serif;
+        background: #f5f5f5 url('dist/images/bg.jpg') no-repeat center;
+        background-size: cover;
+        font-smoothing: antialiased;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    #chat {
+        margin: 20px auto;
+        width: 800px;
+        height: 600px;
+    }
+    #chat .m-message .text.system-msg{
+        width: 100%;
+        font-size: 5px;
+        text-align: center;
+        color: #a5a5a5;
+        background-color: #0000;
+        border: none;
+    }
+    #chat .m-message .text.system-msg:before{
+        content: none;
+    }
+</style>
+    <link rel="stylesheet" type="text/css" href="dist/css/main.css" >
+    </head>
+<body>
+
+<div id="chat">
+    <div class="sidebar">
+        <div class="m-card">
+            <header><img class="avatar" width="40" height="40" :alt="user.nickname" :src="user.avatar">
+                <p class="name">{{user.nickname}}</p></header>
+            <footer>
+                <input @keyup.ctrl.enter="sendMessage" class="search" placeholder="search user...">
+            </footer>
+        </div>
+        <div class="m-list">
+            <ul>
+                <li v-for="friend in friends"  class="">
+                    <img class="avatar" width="30" height="30" :alt="friend.nickname" :src="friend.avatar">
+                    <p class="name">{{friend.nickname}}</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="main">
+        <div class="m-message">
+            <ul>
+                <li v-for="(index,message) in messages">
+                    <p class="time">
+                        <span>{{message.sendtime | datestring}}</span>
+                    </p>
+                    <div class="main1"  :class="message.type=='1'?'self':''">
+                        <img class="avatar" v-if="message.type!='0'" width="30" height="30" :src="message.avatar">
+                        <div class="text" :class="message.type=='0'?'system-msg':''" v-html="message.content | replateMsg">
+
+                        </div>
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+        <div class="m-text">
+            <textarea v-model="sendmessage"
+                    @keyup.ctrl.enter="websocketsend" placeholder="按 Ctrl + Enter 发送"></textarea></div>
+
+    </div>
+</div>
+<script src="dist/js/vue.js"></script>
+<script>
+    Vue.filter("datestring",function (value) {
+        return value.substr(8,2)+":"+value.substr(10,2);
+    });
+    Vue.filter("replateMsg",function (value) {
+
+        return value.replace(/\n/g,"<br/>");
+    });
+    var v = new Vue({
+        el: '#chat',
+        data: {
+            user:{
+              nickname: 'Sunnly',
+              avatar: 'dist/images/1.jpg'
+            },
+            friends:[{
+                nickname: '实例介绍',
+                avatar: 'dist/images/2.png'
+            },{
+                nickname: 'webpack',
+                avatar: 'dist/images/3.jpg'
+            }],
+            messages:
+            [{
+                type: 2,
+                avatar: 'dist/images/2.png',
+                sendtime: '201908121940',
+                content: 'Hello，这是一个基于Vue + Webpack构建的简单chat示例，聊天记录保存在localStorge。简单演示了Vue的基础特性和webpack配置。'
+            },{
+                type: 2,
+                avatar: 'dist/images/2.png',
+                sendtime: '201908121944',
+                content: '项目地址: https://github.com/coffcer/vue-chat'
+            }, {
+                type: 0,
+                avatar: '',
+                sendtime: '201908121944',
+                content: '系统消息：abc登录聊天室'
+            }, {
+                type: 1,
+                avatar: 'dist/images/1.jpg',
+                sendtime: '201908122013',
+                content: 'Hello，这是我发送的消息。'
+            }],
+            websocket:null,
+            sendmessage:''
+        },
+        created: function(){
+            this.initWebSocket()
+        },
+        methods: {
+            initWebSocket:function(){ //初始化weosocket
+                var username = prompt("请给自己取一个名字：")
+                // var username = "Sunnly";
+                var wsuri = "ws://localhost:8080/websocket?user=" + username;
+
+                this.user.nickname = username;
+                if (username=="Sunnly"){
+                    this.user.avatar="dist/images/2.png";
+                }else if (username=="Fangr2"){
+                    this.user.avatar="dist/images/1.jpg";
+                }else{
+                    this.user.avatar="dist/images/3.jpg";
+                }
+
+                this.websocket = new WebSocket(wsuri);
+                this.websocket.onopen = this.websocketonopen;
+                this.websocket.onerror = this.websocketonerror;
+
+                this.websocket.onmessage = this.websocketonmessage;
+                this.websocket.onclose = this.websocketclose;
+            },
+            websocketonopen:function(){
+                console.log("WebSocket连接成功");
+            },
+            websocketonerror:function(){
+                console.log("WebSocket连接发生错误");
+            },
+            websocketonmessage:function(e){
+                var redata = JSON.parse(e.data);
+                var _time = redata.sendtime;
+                _time = _time.substr(8,2)+":"+_time.substr(10,2);
+                this.putmessage(_time,redata);
+            },
+            websocketclose:function(e){
+                console.log("connection closed (" + e.code + ")");
+            },
+            websocketsend:function (e) {
+                if (e.ctrlKey){
+                    console.log("sendMsg:"+this.sendmessage)
+                    if (this.sendmessage.length==0){
+                        alert("消息不能为空")
+                        return;
+                    }
+                    this.websocket.send(this.sendmessage);
+                    this.sendmessage = "";
+                }
+            },
+            putmessage:function(_time, value){
+                this.messages.push(value);
+            }
+        },
+        watch: {
+            messages:function() {
+                var container = this.$el.querySelector(".m-message");
+                setTimeout(function () {
+                    container.scrollTop = container.scrollHeight + 73;
+                },300);
+            }
+        }
+    })
+</script>
+
+<div id="cli_dialog_div"></div>
+</body>
+</html>

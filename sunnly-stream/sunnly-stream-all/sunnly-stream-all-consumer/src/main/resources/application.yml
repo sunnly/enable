@@ -1,0 +1,70 @@
+#  https://www.cnblogs.com/LiveYourLife/p/10120648.html
+
+server:
+  port: 2111
+
+spring:
+  cloud:
+    stream:
+      binders:
+        rabbitmq-A:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                addresses: rabbit.sunnly.wang
+                port: 5672
+                username: sunnly
+                password: sunnly
+        kafka-A:
+          type: kafka
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      brokers: kafka.sunnly.wang:9092
+                      zkNodes: zk.sunnly.wang:2181,zk.sunnly.wang:2182,zk.sunnly.wang:2183
+
+      bindings:
+        rabbitLoggerDebug:
+          destination: sunnly.logger,sunnly.test
+          content-type: application/json
+          binder: rabbitmq-A
+          group: debug
+          consumer:
+            concurrency: 1
+            partitioned: false
+            headerMode: raw
+            binding-routing-key: sunnly.*.debug
+
+        rabbitLoggerError:
+          destination: sunnly.logger,sunnly.test
+          content-type: application/json
+          binder: rabbitmq-A
+          group: error
+        rabbitTestDebug:
+          destination: sunnly.rabbit.test
+          content-type: application/json
+          binder: rabbitmq-A
+          group: test.error
+
+
+        kafkaLoggerDebug:
+          destination: sunnly.kafka.debug
+          content-type: application/json
+          binder: kafka-A
+          group: test.error
+        kafkaLoggerError:
+          destination: sunnly.kafka.error
+          content-type: application/json
+          binder: kafka-A
+          group: test.error
+        kafkaTestDebug:
+          destination: sunnly.test.debug
+          content-type: application/json
+          binder: kafka-A
+          group: test.error
+
+      default-binder: rabbitmq-A

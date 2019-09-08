@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>sunnly-parent</artifactId>
+    <groupId>wang.sunnly.test</groupId>
+    <packaging>pom</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <modules>
+        <module>sunnly-stream</module>
+        <module>sunnly-actuator</module>
+        <module>sunnly-cache</module>
+        <module>sunnly-enable</module>
+        <module>sunnly-kafka</module>
+        <module>sunnly-mycat</module>
+        <module>sunnly-rabbitmq</module>
+        <module>sunnly-seata</module>
+        <module>sunnly-zookeeper</module>
+        <module>sunnly-async</module>
+        <module>sunnly-netty-chat</module>
+        <module>sunnly-websocket</module>
+    </modules>
+</project>

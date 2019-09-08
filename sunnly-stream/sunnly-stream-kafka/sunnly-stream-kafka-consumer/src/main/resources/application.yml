@@ -1,0 +1,23 @@
+server:
+  port: 8899
+
+spring:
+  cloud:
+    stream:
+      bindings:
+        sunnlyInPut:
+          destination: sunnly.kafka
+
+      default-binder: kafka
+
+#      kafka:
+#        binder:
+
+  kafka:
+    bootstrap-servers: kafka.sunnly.wang:9092
+    consumer:
+      group-id: cousumer1
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      client-id: producer1

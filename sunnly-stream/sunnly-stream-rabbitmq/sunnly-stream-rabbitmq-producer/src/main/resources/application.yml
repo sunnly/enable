@@ -1,0 +1,64 @@
+server:
+  port: 9988
+
+spring:
+  cloud:
+    stream:
+      binders:
+        sunnly-rabbitmq:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                addresses: rabbit.sunnly.wang
+                port: 5672
+                username: sunnly
+                password: sunnly
+        sunnly-rabbitmq1:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                addresses: rabbit.sunnly.wang
+                port: 5672
+                username: sunnly
+                password: sunnly
+        sunnly-kafka:
+          type: kafka
+          environment:
+            spring:
+              kafka:
+                bootstrap-servers: kafka.sunnly.wang:9092
+                addresses: kafka.sunnly.wang
+                port: 9092
+
+      bindings:
+        sunnlyOutPut:
+          destination: sunnly.rabbit.test
+          content-type: application/json
+          binder: sunnly-rabbitmq1
+          binding-routing-key: sunnly.rabbit.hello
+          default-binder: sunnly.test
+          producer:
+            auto-startup: true
+            required-groups:
+              - sunnly.test.hello
+              - sunnly.test.hehe
+        sunnlyOutput2:
+#          group: queue-A
+          destination: sunnly.rabbit.test
+          content-type: application/json
+          binder: sunnly-rabbitmq1
+          binding-routing-key: sunnly.rabbit.hehe
+          default-binder: sunnly.hehe
+          producer:
+            auto-startup: true
+            required-groups:
+              - sunnly.test.hehe
+
+        sunnlyKafka:
+          destination: sunnly.kafka.test
+          content-type: application/json
+          binder: sunnly-kafka
+      default-binder: sunnly-rabbitmq
+

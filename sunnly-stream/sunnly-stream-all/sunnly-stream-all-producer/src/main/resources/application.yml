@@ -1,0 +1,112 @@
+server:
+  port: 1111
+
+spring:
+  cloud:
+    stream:
+      binders:
+        rabbitmq-A:
+          type: rabbit
+          environment:
+            spring:
+              rabbitmq:
+                addresses: rabbit.sunnly.wang
+                port: 5672
+                username: sunnly
+                password: sunnly
+        kafka-A:
+          type: kafka
+          environment:
+            spring:
+              cloud:
+                stream:
+                  kafka:
+                    binder:
+                      brokers: kafka.sunnly.wang:9092
+                      zkNodes: zk.sunnly.wang:2181,zk.sunnly.wang:2182,zk.sunnly.wang:2183
+
+      bindings:
+        rabbitLoggerDebug:
+          destination: sunnly.logger
+          content-type: application/json
+          binder: rabbitmq-A
+
+          producer:
+            auto-startup: true
+            required-groups: debug,error
+#            required-groups:
+#              - logger.debug
+#              - test.debug
+        rabbitLoggerError:
+          destination: sunnly.rabbit.error
+          content-type: application/json
+          binder: rabbitmq-A
+          producer:
+            auto-startup: true
+#            required-groups:
+#              - logger.error
+        rabbitTestDebug:
+          destination: sunnly.rabbit.test
+          content-type: application/json
+          binder: rabbitmq-A
+          producer:
+            auto-startup: true
+            partitionCount: 1
+            headerMode: raw
+            bufferSize: 16384
+#            maxRequestSize: 1048576
+#            sync: true
+#            batchTimeout: 0
+#            required-groups:
+#              - test.debug
+#              - test.error
+
+        kafkaLoggerDebug:
+          destination: sunnly.kafka.debug
+          content-type: application/json
+          binder: kafka-A
+          producer:
+            auto-startup: true
+            partition-key-expression: payload.id
+            partitionCount: 1
+            headerMode: raw
+            bufferSize: 16384
+            #            maxRequestSize: 1048576
+            #            sync: true
+            #            batchTimeout: 0
+#            required-groups: test.debug1,test.error1
+#              - test.debug
+#              - test.error
+        kafkaLoggerError:
+          destination: sunnly.kafka.error
+          content-type: application/json
+          binder: kafka-A
+          producer:
+            auto-startup: true
+            partitionCount: 1
+            headerMode: raw
+            bufferSize: 16384
+            #            maxRequestSize: 1048576
+            #            sync: true
+            #            batchTimeout: 0
+            required-groups:
+              - test.debug
+              - test.error
+
+        kafkaTestDebug:
+          destination: sunnly.test.debug
+          content-type: application/json
+          binder: kafka-A
+          producer:
+            auto-startup: true
+            partitionCount: 1
+            headerMode: raw
+            bufferSize: 16384
+            #            maxRequestSize: 1048576
+            #            sync: true
+            #            batchTimeout: 0
+            required-groups:
+              - test.debug
+              - test.error
+
+      default-binder: rabbitmq-A

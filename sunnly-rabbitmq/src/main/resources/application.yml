@@ -1,0 +1,11 @@
+spring:
+  rabbitmq:
+    port: 5672
+    username: sunnly
+    password: sunnly
+    host: rabbit.sunnly.wang
+    virtual-host: /
+    publisher-confirms: true
+
+server:
+  port: 1111

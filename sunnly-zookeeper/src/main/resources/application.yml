@@ -1,0 +1,11 @@
+server:
+  port: 8087
+spring:
+  application:
+    name: sunnly-zookeeper
+#
+#  cloud:
+#    zookeeper:
+#      discovery:
+#        instance-host: 192.168.1.249
+#      connect-string: 192.168.1.249:2181

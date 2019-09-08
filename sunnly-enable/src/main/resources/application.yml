@@ -1,0 +1,23 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /learn
+
+spring:
+  boot:
+    admin:
+      client:
+        url: localhost:5555
+
+sunnly:
+  enabled:
+    run: "*/5 * * * * ?"
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"

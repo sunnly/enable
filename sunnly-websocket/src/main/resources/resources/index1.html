@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form onsubmit="return false;">
+    <h3>WebSocket 聊天室</h3>
+    <input type="text" id="username" value=""><button onclick="send('login_'+document.getElementById('username').value)">登录</button>
+    <textarea id="responseText" style="width: 500px;height: 400px;"></textarea>
+    <br>
+    <input type="text" name="message" style="">
+    <input type="button" value="发送消息" onclick="send(this.form.message.value)">
+    <input type="button" value="清空聊天记录" onclick="javascript:document.getElementById('responseText').value = ''">
+</form>
+<script type="text/javascript">
+    // var wsUrl = "ws://localhost:8080/chatRoomServer";
+    // var wsUrl = "ws://localhost:8888/websocket";
+    // var ws = new WebSocket(wsUrl);
+    var username = prompt("请给自己取一个名字：")
+    var socket;
+    if (!window.WebSocket){
+        window.WebSocket = window.MozWebSocket;
+    }
+    if (window.WebSocket){
+        socket = new WebSocket("ws://localhost:8080/websocket?user="+username)
+        socket.onmessage = function (ev) {
+            var ta = document.getElementById("responseText");
+            // ta.value = ta.value + "\n" + ev.data;
+            var message = JSON.parse(ev);
+            console.log(ev);
+            console.log(message);
+            console.log(message.type)
+            console.log(ev.type);
+        };
+        socket.onopen = function (ev) {
+            var ta = document.getElementById("responseText");
+            ta.value = "链接开启";
+        }
+        socket.onclose = function (ev) {
+            var ta = document.getElementById("responseText");
+            ta.value = ta.value +"链接关闭";
+        }
+
+    } else {
+        alert("您的浏览器不支持 websocket")
+    }
+
+    function send(message) {
+        if (!window.WebSocket){
+            return;
+        }
+        if (socket.readyState == WebSocket.OPEN){
+            socket.send(message);
+        } else {
+            alert("链接没有开启");
+        }
+    }
+</script>
+</body>
+</html>
